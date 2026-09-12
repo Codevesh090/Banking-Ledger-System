@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
+import { MONGO_URI } from "./env.js";
 
 
 export function connectToDb() {
-  if (!process.env.MONGO_URI) {
+  if (!MONGO_URI) {
     throw new Error("MONGO_URI is not defined in environment variables");
   } //check karo MONGO_URI undefined toh nahi hai , agar hai toh error do.
   
-  mongoose.connect(process.env.MONGO_URI)
+  mongoose.connect(MONGO_URI)
     .then(() => {
       console.log("Server is connected to db");
     })
