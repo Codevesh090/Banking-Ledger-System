@@ -1,8 +1,20 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import bcrypt from "bcrypt";
 
+interface IUser {
+  email: string;
+  password: string;
+  name: string;
+}
+
+interface UserMethods {
+  comparePassword(password: string): Promise<boolean>;
+}
+
+type UserModel = Model<IUser, {}, UserMethods>; // Yaani we defined the type of the document,like how a document will be in model .
+
 //Schema - validates before putting anything in db
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema<IUser, UserModel, UserMethods>({  //every mongoose schema needs "What type of data is to store in each document ? yaani IUSER" and then "What is the type of the whole document as each document is consists of  main data to store and then query and then methods ? yaani IUSER ,{AS NO QUERY} ,UserMethods" and then "What types of methods are present in the document ? yaani UserMethods"
   email: {
     type: String,
     required: [true, "Email is required for creating user"],
@@ -36,9 +48,9 @@ userSchema.pre("save", async function (){   //Yeh function chalta hai after vali
 })
 
 //function used when user try to login
-userSchema.methods.comparePassword = async function (password:string) {
+userSchema.methods.comparePassword = async function (password:string):Promise<boolean> {
   return await bcrypt.compare(password, this.password);
-}
+} //we created comparePassword method that our document contain and jab bhi hum kuch mangwayenge, kisi document se toh yeh method bhi aayega .
 
 
-export const userModel = mongoose.model("user",userSchema)
+export const userModel = mongoose.model<IUser, UserModel>("user",userSchema)
