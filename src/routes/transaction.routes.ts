@@ -2,7 +2,6 @@ import express from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { createAccountController } from "../controllers/account.controller.js";
 
-export const accountrouter = express.Router();
+export const transactionrouter = express.Router();
 
-
-accountrouter.post("/", authMiddleware, createAccountController);
+transactionrouter.post("/",authMiddleware,createAccountController)
