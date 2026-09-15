@@ -230,7 +230,6 @@ export async function createInitialFundsTransactionController(req:CustomRequest,
   session.startTransaction();
 
   const transaction = await transactionModel.create(
-    [
       {
         fromAccount:isFromAccountexists._id,
         toAccount,
@@ -238,10 +237,9 @@ export async function createInitialFundsTransactionController(req:CustomRequest,
         idempotencyKey,
         status: "PENDING"
       }
-    ]
   )
 
-  if (!transaction[0]) { //Kya transaction create hone ke baad mujhe transaction document mila?
+  if (!transaction) { //Kya transaction create hone ke baad mujhe transaction document mila?
     throw new Error("No transaction refrence exist, for ledger entry")
   }
 
@@ -250,7 +248,7 @@ export async function createInitialFundsTransactionController(req:CustomRequest,
       {
         account: isFromAccountexists._id ,
         amount: amount,
-        transaction: transaction[0]._id,
+        transaction: transaction._id,
         type: "DEBIT"
       }
     ],
@@ -264,7 +262,7 @@ export async function createInitialFundsTransactionController(req:CustomRequest,
       {
         account: toAccount,
         amount: amount,
-        transaction: transaction[0]._id,
+        transaction: transaction._id,
         type: "CREDIT"
       }
     ],
@@ -273,8 +271,8 @@ export async function createInitialFundsTransactionController(req:CustomRequest,
     }
   )
 
-  transaction[0].status = "COMPLETED";
-  await transaction[0].save({ session });
+  transaction.status = "COMPLETED";
+  await transaction.save({ session });
 
   await session.commitTransaction();
 

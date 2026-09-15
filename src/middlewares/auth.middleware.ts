@@ -3,6 +3,7 @@ import { userModel } from "../models/user.model.js";
 import { SECRET_KEY } from "../config/env.js";
 import jwt from "jsonwebtoken";
 import {Types} from "mongoose";
+import { tokenBlackListModel } from "../models/blackList.model.js";
 
 
 
@@ -26,6 +27,17 @@ export async function authMiddleware(req:CustomRequest,res:Response,next:NextFun
     return;
   } 
 
+  //Check ki kahi jo user token pass kar raha hai wo blacklisted toh nahi hai , yaani blacklist waale table me exist toh nahi karta hai .
+  const istokenBlackListed = await tokenBlackListModel.findOne({ token });
+
+  if (istokenBlackListed) {
+    res.status(401).json({
+      message:"Unauthorized access , Your token is blacklisted"
+    })
+    return;
+  }
+
+  
   try {
     
     if (!SECRET_KEY) {

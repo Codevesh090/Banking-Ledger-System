@@ -7,4 +7,5 @@ export const authrouter = express.Router();
 
 authrouter.post("/register", userRegisterController);
 authrouter.post("/login", userLoginController);
+authrouter.post("/logout", userLoginController);
 
