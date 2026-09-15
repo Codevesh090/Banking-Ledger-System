@@ -81,9 +81,9 @@ accountSchema.methods.getBalance = async function () {  // It means we made that
   
 // Let, say if some user have no transaction then doing this   return balanceData[0].balance  gives a empty array . So,that's why we put a check here such return type is "number" all the time.
   if (balanceData.length === 0) {
-    return 0;
+    return 0; //Yaani if no transaction then balance is 0
   }
-  return balanceData[0].balance
+  return balanceData[0].balance 
 }
 
 export const accountModel = mongoose.model<Iaccount,AccountModel>("account", accountSchema);

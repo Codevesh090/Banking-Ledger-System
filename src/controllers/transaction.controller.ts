@@ -95,6 +95,7 @@ export async function createTransactionController(req: CustomRequest, res: Respo
     res.status(400).json({
       message:`Insufficicent balance . Current balance is ${balance}. Requested amount is ${amount}`
     })
+    return;
   }
 
 
@@ -185,6 +186,146 @@ export async function createTransactionController(req: CustomRequest, res: Respo
   };
 
 }
+
+
+
+// For admin transactions or System User transactions . Matlab humne transaction system ADMIN ke liye bhi bana diya such that admin ko agar kisi user ke account me paisa daalna ho toh wo daal sake .
+export async function createInitialFundsTransactionController(req:CustomRequest,res:Response):Promise<void> {
+  const { toAccount, amount, idempotencyKey } = req.body;
+
+  if (!toAccount || !amount || !idempotencyKey) {
+    res.status(400).json({
+      message: "toAccount, amount and idempotencyKey are required"
+    })
+  }
+
+  if (!req.user?._id) {
+    res.status(400).json({
+      message:"Invalid user"
+    });
+    return;
+  }
+
+  const isFromAccountexists = await accountModel.findOne({ userId: req.user._id });
+
+  if (!isFromAccountexists) {
+    res.status(400).json({
+      message: "System user account not found"
+    });
+    return;
+  }
+  
+
+  const isToAccountexists = await accountModel.findOne({ _id: toAccount });
+
+  if (!isToAccountexists) {
+    res.status(400).json({
+      message: "Invalid toAccount"
+    });
+    return;
+  }
+
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  const transaction = await transactionModel.create(
+    [
+      {
+        fromAccount:isFromAccountexists._id,
+        toAccount,
+        amount,
+        idempotencyKey,
+        status: "PENDING"
+      }
+    ]
+  )
+
+  if (!transaction[0]) { //Kya transaction create hone ke baad mujhe transaction document mila?
+    throw new Error("No transaction refrence exist, for ledger entry")
+  }
+
+  const debitLedgerEntry = await ledgerModel.create(
+    [
+      {
+        account: isFromAccountexists._id ,
+        amount: amount,
+        transaction: transaction[0]._id,
+        type: "DEBIT"
+      }
+    ],
+    {
+      session
+    }
+  )
+
+  const creditLedgerEntry = await ledgerModel.create(
+    [
+      {
+        account: toAccount,
+        amount: amount,
+        transaction: transaction[0]._id,
+        type: "CREDIT"
+      }
+    ],
+    {
+      session
+    }
+  )
+
+  transaction[0].status = "COMPLETED";
+  await transaction[0].save({ session });
+
+  await session.commitTransaction();
+
+  session.endSession()
+  
+  res.status(201).json({
+    message: "Initial funds transaction completed successfully",
+    transaction: transaction
+  })
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //------------------------------------------------------------------------------------------------------------/-----
 

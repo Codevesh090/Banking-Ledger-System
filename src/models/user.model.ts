@@ -5,6 +5,7 @@ interface IUser {
   email: string;
   password: string;
   name: string;
+  systemUser: boolean;
 }
 
 interface UserMethods {
@@ -32,7 +33,13 @@ const userSchema = new mongoose.Schema<IUser, UserModel, UserMethods>({  //every
     required: [true, "Password is required for creating user"],
     minlength: [6, "password should contain more than 6 characters"],
     select:false //matlab agar hum is table me query kar toh jab tak hum password naa maange tab tak nahi aana chahiye , by default false rehna chahiye , jab specifically maange tabhi aaye .
-  },  
+  },
+  systemUser: {  //yaani admin ho ki normal user .
+    type: Boolean,
+    default: false, //By default = false means Normal user
+    immutable: true,
+    select: false,
+  }  
 }, {
   timestamps:true //yaani apne aap har document(yaani row) me createdAt and updatedAt ke do columns lag jaayegne.
 })
