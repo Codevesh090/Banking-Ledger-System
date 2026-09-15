@@ -27,7 +27,7 @@ export async function userRegisterController(req:Request<{}, {}, RegisterUserBod
     return;
   };
 
-  const user = await userModel.create({
+  const user = await userModel.create({   // database me yeh data create kar do
     email, password, name
   });
 
@@ -60,6 +60,7 @@ interface LoginUserBody {
   email: string;
   password: string;
 }
+
 
 //login route at /api/auth/login
 export async function userLoginController(req:Request<{}, {}, LoginUserBody>,res:Response): Promise<void>  {

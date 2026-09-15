@@ -135,6 +135,58 @@ Banking Ledger System`;
 }
 
 
+
+export async function sendTransactionFailedEmail(
+  userEmail: string,
+  name: string,
+  amount: number,
+  toAccount: string
+) {
+  const subject = "Transaction Failed - Banking Ledger System";
+  const text = `Hello ${name},Unfortunately, your transaction could not be completed.
+
+Amount: ${amount}
+Transfer To: ${toAccount}
+Status: FAILED
+
+No money was transferred as part of this failed transaction.
+
+If you did not attempt this transaction, please secure your account immediately.
+
+Thanks,
+Banking Ledger System`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Hello ${name},</h2>
+      <p>
+        Unfortunately, your transaction could not be completed.
+      </p>
+      <p>
+        <strong>Transaction Details:</strong>
+      </p>
+      <ul>
+        <li><strong>Amount:</strong> ${amount}</li>
+        <li><strong>Transfer To:</strong> ${toAccount}</li>
+        <li><strong>Status:</strong> FAILED</li>
+      </ul>
+      <p>
+        No money was transferred as part of this failed transaction.
+      </p>
+      <p>
+        If you did not attempt this transaction, please secure your account immediately.
+      </p>
+      <br />
+      <p>
+        Thanks,<br />
+        <strong>Banking Ledger System</strong>
+      </p>
+    </div>
+  `;
+
+  await sendEmail(userEmail, subject, text, html);
+}
+
 /*---------------------------------------------------------------------------------------------------------------------
 In total to use nodemailer,
 Get the credentials -> connect our server to SMTP server of google -> now ready to send mails or do operation on client mails
