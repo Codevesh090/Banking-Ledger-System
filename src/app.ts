@@ -2,17 +2,21 @@ import express from "express";
 import { authrouter } from "./routes/auth.routes.js";
 import { accountrouter } from "./routes/account.routes.js";
 import { transactionrouter } from "./routes/transaction.routes.js";
+import { apiLimiter } from "./server.js"; // It is alaso a middleware to rateLimit request on API's .
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
 export const app = express();
 
-
+app.use(helmet()); //helmet is a security middleware for Express. It helps protect your API by setting various HTTP security headers.
 app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
     res.send("Ledger Service is up and running")
 })
+
+app.use("/api", apiLimiter);
 
 app.use("/api/auth", authrouter); 
 app.use("/api/account", accountrouter); 

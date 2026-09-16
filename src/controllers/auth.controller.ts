@@ -39,7 +39,11 @@ export async function userRegisterController(req:Request<{}, {}, RegisterUserBod
   };
   const token = jwt.sign({ userId: user._id }, SECRET_KEY, { expiresIn: "3d" });
 
-  res.cookie("token", token);
+  res.cookie("accessToken", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict"
+  });
 
   res.status(201).json({
     user: {
@@ -92,7 +96,11 @@ export async function userLoginController(req:Request<{}, {}, LoginUserBody>,res
   
   const token = jwt.sign({ userId: user._id }, SECRET_KEY, { expiresIn: "3d" });
 
-  res.cookie("token", token);
+  res.cookie("accessToken", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict"
+  });
 
   res.status(200).json({
     user: {
