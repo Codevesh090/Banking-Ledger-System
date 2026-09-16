@@ -8,6 +8,7 @@ import helmet from "helmet";
 
 export const app = express();
 
+app.set("trust proxy", 1); // The current flow is Client -> Render proxy -> Our express app  . So Render adds:X-Forwarded-For  which tell your application the original client’s IP. But express by default says trust proxy = false , so it cannot determine the client’s real IP. So, we set the trust proxy = true such that express trust on Render Proxy and take the client IP from Render proxy .
 app.use(helmet()); //helmet is a security middleware for Express. It helps protect your API by setting various HTTP security headers.
 app.use(express.json());
 app.use(cookieParser());
